@@ -6,3 +6,4 @@
 /temp
 .wwebjs_cache/
 src/.wwebjs_auth
+.DS_Store
