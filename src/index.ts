@@ -227,7 +227,7 @@ app.delete('/api/session/:clientId', (req: Request, res: Response) => {
   }
 });
 
-const PORT = 8000;
+const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Health check available at http://localhost:${PORT}/health`);
