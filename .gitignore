@@ -5,3 +5,4 @@
 /logs
 /temp
 .wwebjs_cache/
+src/.wwebjs_auth
