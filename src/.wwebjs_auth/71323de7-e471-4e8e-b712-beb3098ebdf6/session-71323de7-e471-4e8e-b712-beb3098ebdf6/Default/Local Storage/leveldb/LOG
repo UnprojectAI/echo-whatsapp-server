@@ -1,0 +1,8 @@
+2025/05/20-04:13:35.688 21a964 Creating DB /Users/shivamsingh/Desktop/HumanBitAi/echo-whatsapp-server/src/.wwebjs_auth/71323de7-e471-4e8e-b712-beb3098ebdf6/session-71323de7-e471-4e8e-b712-beb3098ebdf6/Default/Local Storage/leveldb since it was missing.
+2025/05/20-04:13:35.696 21a964 Reusing MANIFEST /Users/shivamsingh/Desktop/HumanBitAi/echo-whatsapp-server/src/.wwebjs_auth/71323de7-e471-4e8e-b712-beb3098ebdf6/session-71323de7-e471-4e8e-b712-beb3098ebdf6/Default/Local Storage/leveldb/MANIFEST-000001
+2025/05/20-06:06:59.372 21a966 Level-0 table #5: started
+2025/05/20-06:06:59.377 21a966 Level-0 table #5: 21853 bytes OK
+2025/05/20-06:06:59.379 21a966 Delete type=0 #3
+2025/05/20-09:46:59.650 21a966 Level-0 table #7: started
+2025/05/20-09:46:59.656 21a966 Level-0 table #7: 18876 bytes OK
+2025/05/20-09:46:59.661 21a966 Delete type=0 #4

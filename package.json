@@ -1,0 +1,32 @@
+{
+  "name": "echo-whatsapp-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UnprojectAI/echo-whatsapp-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/UnprojectAI/echo-whatsapp-server/issues"
+  },
+  "homepage": "https://github.com/UnprojectAI/echo-whatsapp-server#readme",
+  "devDependencies": {
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.19",
+    "@types/socket.io": "^3.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "whatsapp-web.js": "^1.28.0"
+  }
+}
