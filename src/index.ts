@@ -11,7 +11,7 @@ const server = http.createServer(app);
 
 // Configure CORS
 app.use(cors({
-  origin: ["http://localhost:3000", "http://hire.localhost:3001","http://hire.localhost:3000","http://localhost:3001"],
+  origin: ["http://localhost:3000", "http://hire.localhost:3001","http://hire.localhost:3000","http://localhost:3001","http://localhost:3002","http://hire.localhost:3002"],
   methods: ["GET", "POST", "DELETE"],
   credentials: true
 }));
@@ -19,7 +19,7 @@ app.use(cors({
 // Configure Socket.IO with more detailed options
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://hire.localhost:3001","http://hire.localhost:3000","http://localhost:3001"],
+    origin: ["http://localhost:3000", "http://hire.localhost:3001","http://hire.localhost:3000","http://localhost:3001","http://localhost:3002","http://hire.localhost:3002"],
     methods: ["GET", "POST"],
     credentials: true
   },
@@ -113,6 +113,7 @@ const createWhatsAppClient = (clientId: string) => {
     console.log(`[${clientId}] Client was disconnected:`, reason);
     // Remove client from the Map
     clients.delete(clientId);
+    console.log(clients)
     io.emit(`disconnected_${clientId}`, reason);
   });
 
