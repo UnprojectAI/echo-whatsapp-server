@@ -111,6 +111,8 @@ const createWhatsAppClient = (clientId: string) => {
 
   client.on('disconnected', (reason: string) => {
     console.log(`[${clientId}] Client was disconnected:`, reason);
+    // Remove client from the Map
+    clients.delete(clientId);
     io.emit(`disconnected_${clientId}`, reason);
   });
 
