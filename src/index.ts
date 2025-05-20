@@ -147,12 +147,7 @@ io.on('connection', (socket: Socket) => {
         console.error(`[${clientId}] Error during initialization:`, err);
         socket.emit(`error_${clientId}`, 'Failed to initialize WhatsApp client');
       });
-    } else if (clients.has(clientId)) {
-      console.log(`Session ${clientId} already exists`);
-      const existingClient = clients.get(clientId);
-      console.log(existingClient?.info?.status);
-    }
-    else {
+    } else {
       console.log(`Session ${clientId} already exists`);
       const existingClient = clients.get(clientId);
       if (existingClient?.info) {
