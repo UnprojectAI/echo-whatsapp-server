@@ -119,9 +119,11 @@ const createWhatsAppClient = (clientId: string) => {
 
   client.on('disconnected', (reason: string) => {
     console.log(`[${clientId}] Client was disconnected:`, reason);
-    // Remove client from the Map
-    clients.delete(clientId);
-    console.log(clients)
+    // Only delete client if the reason indicates actual unlinking
+    if (reason === 'LOGOUT' || reason === 'UNPAIRED') {
+      clients.delete(clientId);
+      console.log(`[${clientId}] Session removed due to unlinking`);
+    }
     io.emit(`disconnected_${clientId}`, reason);
   });
 
