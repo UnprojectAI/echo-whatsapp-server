@@ -230,6 +230,64 @@ app.delete('/api/session/:clientId', (req: Request, res: Response) => {
   }
 });
 
+// New endpoint to fetch chat history
+app.post('/api/chat-history', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { clientId, phoneNumber } = req.body;
+    
+    if (!clientId || !phoneNumber) {
+      res.status(400).json({ 
+        success: false, 
+        error: 'Client ID and phone number are required' 
+      });
+      return;
+    }
+
+    const client = clients.get(clientId);
+    if (!client) {
+      res.status(404).json({ 
+        success: false, 
+        error: 'WhatsApp client not found' 
+      });
+      return;
+    }
+
+    if (!client.info) {
+      res.status(400).json({ 
+        success: false, 
+        error: 'WhatsApp client is not initialized yet' 
+      });
+      return;
+    }
+
+    // Format the number to include @c.us suffix
+    const formattedNumber = phoneNumber.includes('@c.us') ? phoneNumber : `${phoneNumber}@c.us`;
+    
+    // Fetch chat history using type assertion
+    const chat = await (client as any).getChatById(formattedNumber);
+    const messages = await chat.fetchMessages({ limit: 100 }); // Fetch last 100 messages
+
+    // Format messages for response
+    const formattedMessages = messages.map((msg: Message) => ({
+      id: msg.id,
+      from: msg.from,
+      body: msg.body,
+      timestamp: msg.timestamp
+    }));
+
+    res.json({ 
+      success: true, 
+      messages: formattedMessages 
+    });
+  } catch (error: unknown) {
+    console.error('Error fetching chat history:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to fetch chat history' 
+    });
+  }
+});
+
 const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
