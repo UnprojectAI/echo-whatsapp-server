@@ -95,6 +95,14 @@ const createWhatsAppClient = (clientId: string) => {
     io.emit(`qr_${clientId}`, qr);
   });
 
+  client.on('qr_max_retries', () => {
+    console.log(`[${clientId}] Maximum QR code retries reached`);
+    // Remove client from the Map
+    clients.delete(clientId);
+    // Notify connected clients
+    io.emit(`error_${clientId}`, 'Maximum QR code retries reached. Session removed.');
+  });
+
   client.on('ready', () => {
     console.log(`[${clientId}] Client is ready!`);
     io.emit(`ready_${clientId}`, client.info?.wid?.user);
