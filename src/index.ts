@@ -97,10 +97,18 @@ const createWhatsAppClient = (clientId: string) => {
 
   client.on('qr_max_retries', () => {
     console.log(`[${clientId}] Maximum QR code retries reached`);
-    // Remove client from the Map
-    clients.delete(clientId);
-    // Notify connected clients
-    io.emit(`error_${clientId}`, 'Maximum QR code retries reached. Session removed.');
+    try {
+      // Remove client from the Map
+      clients.delete(clientId);
+      // Notify connected clients
+      io.emit(`error_${clientId}`, 'Maximum QR code retries reached. Session removed.');
+      // Attempt to destroy the client
+      client.destroy().catch(err => {
+        console.error(`[${clientId}] Error destroying client:`, err);
+      });
+    } catch (error) {
+      console.error(`[${clientId}] Error handling qr_max_retries:`, error);
+    }
   });
 
   client.on('ready', () => {
@@ -114,28 +122,46 @@ const createWhatsAppClient = (clientId: string) => {
 
   client.on('auth_failure', (msg: string) => {
     console.error(`[${clientId}] Authentication failure:`, msg);
-    io.emit(`error_${clientId}`, 'Authentication failed. Please try again.');
+    try {
+      io.emit(`error_${clientId}`, 'Authentication failed. Please try again.');
+      // Remove client from the Map
+      clients.delete(clientId);
+      // Attempt to destroy the client
+      client.destroy().catch(err => {
+        console.error(`[${clientId}] Error destroying client:`, err);
+      });
+    } catch (error) {
+      console.error(`[${clientId}] Error handling auth_failure:`, error);
+    }
   });
 
   client.on('disconnected', (reason: string) => {
     console.log(`[${clientId}] Client was disconnected:`, reason);
-    // Only delete client if the reason indicates actual unlinking
-    if (reason === 'LOGOUT' || reason === 'UNPAIRED') {
-      clients.delete(clientId);
-      console.log(`[${clientId}] Session removed due to unlinking`);
+    try {
+      // Only delete client if the reason indicates actual unlinking
+      if (reason === 'LOGOUT' || reason === 'UNPAIRED') {
+        clients.delete(clientId);
+        console.log(`[${clientId}] Session removed due to unlinking`);
+      }
+      io.emit(`disconnected_${clientId}`, reason);
+    } catch (error) {
+      console.error(`[${clientId}] Error handling disconnected:`, error);
     }
-    io.emit(`disconnected_${clientId}`, reason);
   });
 
   client.on('message', async (message: Message) => {
-    console.log(`[${clientId}] Message received:`, message.body);
-    io.emit(`message_${clientId}`, {
-      from: message.from,
-      body: message.body,
-      timestamp: message.timestamp,
-      phoneNumber: message.from.includes('@c.us') ? message.from : `${message.from}@c.us`,
-      myNumber: client.info?.wid?.user
-    });
+    try {
+      console.log(`[${clientId}] Message received:`, message.body);
+      io.emit(`message_${clientId}`, {
+        from: message.from,
+        body: message.body,
+        timestamp: message.timestamp,
+        phoneNumber: message.from.includes('@c.us') ? message.from : `${message.from}@c.us`,
+        myNumber: client.info?.wid?.user
+      });
+    } catch (error) {
+      console.error(`[${clientId}] Error handling message:`, error);
+    }
   });
 
   return client;
@@ -150,19 +176,29 @@ io.on('connection', (socket: Socket) => {
 
   socket.on('create_session', (clientId: string) => {
     console.log(`Creating new session for client: ${clientId}`);
-    if (!clients.has(clientId)) {
-      const client = createWhatsAppClient(clientId);
-      clients.set(clientId, client);
-      client.initialize().catch((err: Error) => {
-        console.error(`[${clientId}] Error during initialization:`, err);
-        socket.emit(`error_${clientId}`, 'Failed to initialize WhatsApp client');
-      });
-    } else {
-      console.log(`Session ${clientId} already exists`);
-      const existingClient = clients.get(clientId);
-      if (existingClient?.info) {
-        socket.emit(`ready_${clientId}`);
+    try {
+      if (!clients.has(clientId)) {
+        const client = createWhatsAppClient(clientId);
+        clients.set(clientId, client);
+        client.initialize().catch((err: Error) => {
+          console.error(`[${clientId}] Error during initialization:`, err);
+          socket.emit(`error_${clientId}`, 'Failed to initialize WhatsApp client');
+          // Clean up on initialization failure
+          clients.delete(clientId);
+          client.destroy().catch(destroyErr => {
+            console.error(`[${clientId}] Error destroying client after init failure:`, destroyErr);
+          });
+        });
+      } else {
+        console.log(`Session ${clientId} already exists`);
+        const existingClient = clients.get(clientId);
+        if (existingClient?.info) {
+          socket.emit(`ready_${clientId}`);
+        }
       }
+    } catch (error) {
+      console.error(`Error creating session for ${clientId}:`, error);
+      socket.emit(`error_${clientId}`, 'Failed to create WhatsApp session');
     }
   });
 
