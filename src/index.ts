@@ -191,7 +191,7 @@ io.on('connection', (socket: Socket) => {
         });
       } else {
         console.log(`Session ${clientId} already exists`);
-        socket.emit(`error_${clientId}`, 'Session already exists');
+        socket.emit(`error_${clientId}_Session already exists`);
         const existingClient = clients.get(clientId);
         if (existingClient?.info) {
           socket.emit(`ready_${clientId}`);
