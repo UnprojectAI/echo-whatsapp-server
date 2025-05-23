@@ -1,20 +1,13 @@
 import { Client, LocalAuth, Message } from 'whatsapp-web.js';
 import express, { Request, Response, Application } from 'express';
 import cors from 'cors';
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
+import http from 'http';
 import { Server, Socket } from 'socket.io';
+import path from 'path';
+import fs from 'fs';
 
 const app: Application = express();
-
-// SSL/TLS configuration
-const sslOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/live/hire.humanbit.ai/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/hire.humanbit.ai/fullchain.pem')
-};
-
-const server = https.createServer(sslOptions, app);
+const server = http.createServer(app);
 
 // Configure CORS
 app.use(cors({
@@ -362,6 +355,6 @@ app.post('/api/chat-history', async (req: Request, res: Response): Promise<void>
 
 const PORT = 3000;
 server.listen(PORT, () => {
-  console.log(`Secure server running on port ${PORT}`);
-  console.log(`Health check available at https://hire.humanbit.ai:${PORT}/health`);
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Health check available at http://localhost:${PORT}/health`);
 }); 
