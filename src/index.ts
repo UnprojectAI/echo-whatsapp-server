@@ -11,7 +11,7 @@ const server = http.createServer(app);
 
 // Configure CORS
 app.use(cors({
-  origin: ["http://localhost:3000", "http://hire.localhost:3001","http://hire.localhost:3000","http://localhost:3001","http://localhost:3002","http://hire.localhost:3002"],
+  origin: '*',
   methods: ["GET", "POST", "DELETE"],
   credentials: true
 }));
@@ -19,13 +19,19 @@ app.use(cors({
 // Configure Socket.IO with more detailed options
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://hire.localhost:3001","http://hire.localhost:3000","http://localhost:3001","http://localhost:3002","http://hire.localhost:3002"],
+    origin: '*',
     methods: ["GET", "POST"],
     credentials: true
   },
-  pingTimeout: 60000,
+  pingTimeout: 120000,
   pingInterval: 25000,
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  connectTimeout: 45000,
+  allowUpgrades: true,
+  maxHttpBufferSize: 1e8,
+  path: '/socket.io/',
+  serveClient: false,
+  cookie: false
 });
 
 app.use(express.json());
@@ -173,6 +179,18 @@ io.on('connection', (socket: Socket) => {
 
   // Send immediate connection confirmation
   socket.emit('connect_confirmation', { status: 'connected', socketId: socket.id });
+
+  // Handle ping timeout
+  socket.on('ping_timeout', () => {
+    console.log(`Ping timeout for socket: ${socket.id}`);
+    socket.emit('error', 'Connection timeout. Please reconnect.');
+  });
+
+  // Handle connection errors
+  socket.on('connect_error', (error) => {
+    console.error(`Connection error for socket ${socket.id}:`, error);
+    socket.emit('error', 'Connection error occurred. Please try reconnecting.');
+  });
 
   socket.on('create_session', (clientId: string) => {
     console.log(`Creating new session for client: ${clientId}`);
